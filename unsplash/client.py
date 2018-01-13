@@ -1,4 +1,4 @@
-import requests
+import aiohttp
 
 from unsplash.errors import UnsplashError
 
@@ -14,40 +14,46 @@ class Client(object):
         self.api = api
         self.rate_limit_error = 'Rate Limit Exceeded'
 
-    def _request(self, url, method, params=None, data=None, **kwargs):
-        url = "%s%s" % (self.api.base_url, url)
+    async def _request(self, url, method, params=None, data=None, **kwargs):
+        if not url.startswith('http'):
+            url = "%s%s" % (self.api.base_url, url)
         headers = self.get_auth_header()
         headers.update(self.get_version_header())
         headers.update(kwargs.pop("headers", {}))
 
         try:
-            response = requests.request(method, url, params=params, data=data, headers=headers, **kwargs)
+            async with aiohttp.ClientSession() as session:
+                async with session.request(method, url, params=params, data=data, headers=headers, **kwargs) as response:
+                    if not self._is_2xx(response.status):
+                        text = await response.text()
+                        if text == self.rate_limit_error:
+                            raise UnsplashError(self.rate_limit_error)
+                        else:
+                            json = await response.json()
+                            errors = json.get("errors")
+                            raise UnsplashError(errors[0] if errors else None)
+                    if response.headers.get('Content-Type') == 'application/json':
+                        result = await response.json()
+                    else:
+                        result = await response.read()
+        except ValueError as e:
+            result = None
         except Exception as e:
             raise UnsplashError("Connection error: %s" % e)
 
-        try:
-            if not self._is_2xx(response.status_code):
-                if response.text == self.rate_limit_error:
-                    raise UnsplashError(self.rate_limit_error)
-                else:
-                    errors = response.json().get("errors")
-                    raise UnsplashError(errors[0] if errors else None)
-            result = response.json()
-        except ValueError as e:
-            result = None
         return result
 
-    def _get(self, url, params=None, **kwargs):
-        return self._request(url, "get", params=params, **kwargs)
+    async def _get(self, url, params=None, **kwargs):
+        return await self._request(url, "get", params=params, **kwargs)
 
-    def _post(self, url, data=None, **kwargs):
-        return self._request(url, "post", data=data, **kwargs)
+    async def _post(self, url, data=None, **kwargs):
+        return await self._request(url, "post", data=data, **kwargs)
 
-    def _delete(self, url, **kwargs):
-        return self._request(url, "delete", **kwargs)
+    async def _delete(self, url, **kwargs):
+        return await self._request(url, "delete", **kwargs)
 
-    def _put(self, url, data=None, **kwargs):
-        return self._request(url, "put", data=data, **kwargs)
+    async def _put(self, url, data=None, **kwargs):
+        return await self._request(url, "put", data=data, **kwargs)
 
     def get_auth_header(self):
         """

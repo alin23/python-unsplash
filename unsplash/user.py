@@ -22,7 +22,7 @@ class User(Client):
         super(User, self).__init__(**kwargs)
         self.ordering_values = ["latest", "oldest", "popular"]
 
-    def me(self):
+    async def me(self):
         """
         Get the currently-logged in user.
 
@@ -36,10 +36,10 @@ class User(Client):
         :return: [User]: The Unsplash User.
         """
         url = "/me"
-        result = self._get(url)
+        result = await self._get(url)
         return UserModel.parse(result)
 
-    def update(self, **kwargs):
+    async def update(self, **kwargs):
         """
         Update the currently-logged in user.
 
@@ -58,10 +58,10 @@ class User(Client):
         :return: [User]: The Unsplash User.
         """
         url = "/me"
-        result = self._put(url, data=kwargs)
+        result = await self._put(url, data=kwargs)
         return UserModel.parse(result)
 
-    def get(self, username, width=None, height=None):
+    async def get(self, username, width=None, height=None):
         """
         Retrieve public details on a given user.
 
@@ -78,10 +78,10 @@ class User(Client):
             "w": width,
             "h": height
         }
-        result = self._get(url, params=params)
+        result = await self._get(url, params=params)
         return UserModel.parse(result)
 
-    def portfolio(self, username):
+    async def portfolio(self, username):
         """
         Retrieve a single user’s portfolio link.
 
@@ -89,10 +89,10 @@ class User(Client):
         :return: [Link]: The Unsplash Link.
         """
         url = "/users/{username}/portfolio".format(username=username)
-        result = self._get(url)
+        result = await self._get(url)
         return LinkModel.parse(result)
 
-    def _photos(self, url, username, page=1, per_page=10, order_by="latest"):
+    async def _photos(self, url, username, page=1, per_page=10, order_by="latest"):
         if order_by not in self.ordering_values:
             raise Exception()
         params = {
@@ -100,9 +100,9 @@ class User(Client):
             "per_page": per_page,
             "order_by": order_by
         }
-        return self._get(url, params=params)
+        return await self._get(url, params=params)
 
-    def photos(self, username, page=1, per_page=10, order_by="latest"):
+    async def photos(self, username, page=1, per_page=10, order_by="latest"):
         """
         Get a list of photos uploaded by a user.
 
@@ -114,10 +114,10 @@ class User(Client):
         :return: [Array]: A single page of the Photo list.
         """
         url = "/users/{username}/photos".format(username=username)
-        result = self._photos(url, username, page=page, per_page=per_page, order_by=order_by)
+        result = await self._photos(url, username, page=page, per_page=per_page, order_by=order_by)
         return PhotoModel.parse_list(result)
 
-    def likes(self, username, page=1, per_page=10, order_by="latest"):
+    async def likes(self, username, page=1, per_page=10, order_by="latest"):
         """
         Get a list of photos liked by a user.
 
@@ -129,10 +129,10 @@ class User(Client):
         :return: [Array]: A single page of the Photo list.
         """
         url = "/users/{username}/likes".format(username=username)
-        result = self._photos(url, username, page=page, per_page=per_page, order_by=order_by)
+        result = await self._photos(url, username, page=page, per_page=per_page, order_by=order_by)
         return PhotoModel.parse_list(result)
 
-    def collections(self, username, page=1, per_page=10):
+    async def collections(self, username, page=1, per_page=10):
         """
         Get a list of collections created by the user.
 
@@ -146,5 +146,5 @@ class User(Client):
             "page": page,
             "per_page": per_page
         }
-        result = self._get(url, params=params)
+        result = await self._get(url, params=params)
         return CollectionModel.parse_list(result)

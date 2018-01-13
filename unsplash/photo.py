@@ -20,7 +20,7 @@ class Photo(Client):
         self.ordering_values = ["latest", "oldest", "popular"]
         self.orientation_values = ["landscape", "portrait", "squarish"]
 
-    def _all(self, url, page=1, per_page=10, order_by="latest"):
+    async def _all(self, url, page=1, per_page=10, order_by="latest"):
         if order_by not in self.ordering_values:
             raise Exception()
         params = {
@@ -28,10 +28,10 @@ class Photo(Client):
             "per_page": per_page,
             "order_by": order_by
         }
-        result = self._get(url, params=params)
+        result = await self._get(url, params=params)
         return PhotoModel.parse_list(result)
 
-    def all(self, page=1, per_page=10, order_by="latest"):
+    async def all(self, page=1, per_page=10, order_by="latest"):
         """
         Get a single page from the list of all photos.
 
@@ -41,9 +41,9 @@ class Photo(Client):
         (Valid values: latest, oldest, popular; default: latest)
         :return: [Array]: A single page of the Photo list.
         """
-        return self._all("/photos", page=page, per_page=per_page, order_by=order_by)
+        return await self._all("/photos", page=page, per_page=per_page, order_by=order_by)
 
-    def curated(self, page=1, per_page=10, order_by="latest"):
+    async def curated(self, page=1, per_page=10, order_by="latest"):
         """
         Get a single page from the list of the curated photos (front-page’s photos).
 
@@ -53,9 +53,9 @@ class Photo(Client):
         (Valid values: latest, oldest, popular; default: latest)
         :return: [Array]: A single page of the curated Photo list.
         """
-        return self._all("/photos/curated", page=page, per_page=per_page, order_by=order_by)
+        return await self._all("/photos/curated", page=page, per_page=per_page, order_by=order_by)
 
-    def get(self, photo_id, width=None, height=None, rect=None):
+    async def get(self, photo_id, width=None, height=None, rect=None):
         """
         Retrieve a single photo.
 
@@ -74,10 +74,10 @@ class Photo(Client):
             "h": height,
             "rect": rect
         }
-        result = self._get(url, params=params)
+        result = await self._get(url, params=params)
         return PhotoModel.parse(result)
 
-    def search(self, query, category=None, orientation=None, page=1, per_page=10):
+    async def search(self, query, category=None, orientation=None, page=1, per_page=10):
         """
         Get a single page from a photo search.
         Optionally limit your search to a set of categories by supplying the category ID’s.
@@ -105,10 +105,10 @@ class Photo(Client):
             "per_page": per_page
         }
         url = "/photos/search"
-        result = self._get(url, params=params)
+        result = await self._get(url, params=params)
         return PhotoModel.parse_list(result)
 
-    def random(self, count=1, **kwargs):
+    async def random(self, count=1, **kwargs):
         """
         Retrieve a single random photo, given optional filters.
 
@@ -143,10 +143,10 @@ class Photo(Client):
         if orientation and orientation not in self.orientation_values:
             raise Exception()
         url = "/photos/random"
-        result = self._get(url, params=kwargs)
+        result = await self._get(url, params=kwargs)
         return PhotoModel.parse_list(result)
 
-    def stats(self, photo_id):
+    async def stats(self, photo_id):
         """
         Retrieve a single photo’s stats.
 
@@ -154,11 +154,11 @@ class Photo(Client):
         :return: [Stat]: The Unsplash Stat.
         """
         url = "/photos/%s/stats" % photo_id
-        result = self._get(url)
+        result = await self._get(url)
         return StatModel.parse(result)
 
     # ToDO
-    def download(self, photo_id):
+    async def download(self, photo_id):
         """
         Retrieve a single photo’s download link.
 
@@ -169,14 +169,15 @@ class Photo(Client):
         :return: [Dictionary]: Dictionary has download url.
         """
         url = "/photos/%s/download" % photo_id
-        return self._get(url)
+        url = await self._get(url)
+        return await self._get(url['url'])
 
     # ToDo
-    def update(self, photo_id, **kwargs):
+    async def update(self, photo_id, **kwargs):
         url = "/photos/%s" % photo_id
-        return self._put(url, data=kwargs)
+        return await self._put(url, data=kwargs)
 
-    def like(self, photo_id):
+    async def like(self, photo_id):
         """
         Like a photo on behalf of the logged-in user.
         This requires the 'write_likes' scope.
@@ -188,10 +189,10 @@ class Photo(Client):
         :return: [Photo]: The Unsplash Photo.
         """
         url = "/photos/%s/like" % photo_id
-        result = self._post(url)
+        result = await self._post(url)
         return PhotoModel.parse(result)
 
-    def unlike(self, photo_id):
+    async def unlike(self, photo_id):
         """
         Remove a user’s like of a photo.
 
@@ -202,5 +203,5 @@ class Photo(Client):
         :return: [Photo]: The Unsplash Photo.
         """
         url = "/photos/%s/like" % photo_id
-        result = self._delete(url)
+        result = await self._delete(url)
         return PhotoModel.parse(result)
