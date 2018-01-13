@@ -10,7 +10,7 @@ requirements = [str(req.req) for req in install_requirements]
 
 setup(
     name="python-unsplash-async",
-    version="1.0.0",
+    version="1.0.1",
     description="A Python client for the Unsplash API.",
     license="MIT",
     maintainer="Alin Panaitiu",
