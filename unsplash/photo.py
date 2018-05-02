@@ -158,7 +158,7 @@ class Photo(Client):
         return StatModel.parse(result)
 
     # ToDO
-    async def download(self, photo_id):
+    async def download(self, photo_id, without_content=False):
         """
         Retrieve a single photo’s download link.
 
@@ -170,7 +170,10 @@ class Photo(Client):
         """
         url = "/photos/%s/download" % photo_id
         url = await self._get(url)
-        return await self._get(url['url'])
+        if without_content:
+            return url
+        else:
+            return await self._get(url['url'])
 
     # ToDo
     async def update(self, photo_id, **kwargs):
