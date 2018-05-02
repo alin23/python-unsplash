@@ -3,14 +3,27 @@
 
 import uuid
 from setuptools import setup, find_packages
-from pip.req import parse_requirements
 
-install_requirements = parse_requirements('requirements.txt', session=uuid.uuid1())
-requirements = [str(req.req) for req in install_requirements]
+with open('unsplash/__init__.py', 'r') as f:
+    for line in f:
+        if line.startswith('__version__'):
+            version = line.strip().split('=')[1].strip(' \'"')
+            break
+    else:
+        version = '0.0.1'
+
+
+REQUIRES = [
+    'oauthlib>=2.0.1',
+    'requests>=2.13.0',
+    'requests-oauthlib>=0.7.0',
+    'six>=1.10.0',
+    'aiohttp',
+]
 
 setup(
     name="python-unsplash-async",
-    version="1.0.1",
+    version=version,
     description="A Python client for the Unsplash API.",
     license="MIT",
     maintainer="Alin Panaitiu",
@@ -19,7 +32,7 @@ setup(
     author_email="yakup.adakli@gmail.com",
     url="http://github.com/alin23/python-unsplash",
     packages=find_packages(exclude=["tests"]),
-    install_requires=requirements,
+    install_requires=REQUIRES,
     keywords="unsplash library",
     classifiers=[
         "Development Status :: 3 - Alpha",
