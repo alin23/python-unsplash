@@ -1,7 +1,10 @@
 # coding=utf-8
 
 from unsplash.client import Client
-from unsplash.models import User as UserModel, Collection as CollectionModel, Link as LinkModel, Photo as PhotoModel
+from unsplash.models import Link as LinkModel
+from unsplash.models import User as UserModel
+from unsplash.models import Photo as PhotoModel
+from unsplash.models import Collection as CollectionModel
 
 
 class User(Client):
@@ -74,10 +77,7 @@ class User(Client):
         :return: [User]: The Unsplash User.
         """
         url = "/users/{username}".format(username=username)
-        params = {
-            "w": width,
-            "h": height
-        }
+        params = {"w": width, "h": height}
         result = await self._get(url, params=params)
         return UserModel.parse(result)
 
@@ -95,11 +95,7 @@ class User(Client):
     async def _photos(self, url, username, page=1, per_page=10, order_by="latest"):
         if order_by not in self.ordering_values:
             raise Exception()
-        params = {
-            "page": page,
-            "per_page": per_page,
-            "order_by": order_by
-        }
+        params = {"page": page, "per_page": per_page, "order_by": order_by}
         return await self._get(url, params=params)
 
     async def photos(self, username, page=1, per_page=10, order_by="latest"):
@@ -114,7 +110,9 @@ class User(Client):
         :return: [Array]: A single page of the Photo list.
         """
         url = "/users/{username}/photos".format(username=username)
-        result = await self._photos(url, username, page=page, per_page=per_page, order_by=order_by)
+        result = await self._photos(
+            url, username, page=page, per_page=per_page, order_by=order_by
+        )
         return PhotoModel.parse_list(result)
 
     async def likes(self, username, page=1, per_page=10, order_by="latest"):
@@ -129,7 +127,9 @@ class User(Client):
         :return: [Array]: A single page of the Photo list.
         """
         url = "/users/{username}/likes".format(username=username)
-        result = await self._photos(url, username, page=page, per_page=per_page, order_by=order_by)
+        result = await self._photos(
+            url, username, page=page, per_page=per_page, order_by=order_by
+        )
         return PhotoModel.parse_list(result)
 
     async def collections(self, username, page=1, per_page=10):
@@ -142,9 +142,6 @@ class User(Client):
         :return: [Array]: A single page of the Collection list.
         """
         url = "/users/{username}/collections".format(username=username)
-        params = {
-            "page": page,
-            "per_page": per_page
-        }
+        params = {"page": page, "per_page": per_page}
         result = await self._get(url, params=params)
         return CollectionModel.parse_list(result)

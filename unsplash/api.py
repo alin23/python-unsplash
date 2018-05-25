@@ -1,8 +1,8 @@
-from unsplash.collection import Collection
-from unsplash.photo import Photo
-from unsplash.search import Search
 from unsplash.stat import Stat
 from unsplash.user import User
+from unsplash.photo import Photo
+from unsplash.search import Search
+from unsplash.collection import Collection
 
 
 class Api(object):

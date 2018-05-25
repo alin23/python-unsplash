@@ -1,7 +1,6 @@
 from oauthlib.oauth2 import OAuth2Error
-from requests_oauthlib.oauth2_session import OAuth2Session
-
 from unsplash.errors import UnsplashAuthError
+from requests_oauthlib.oauth2_session import OAuth2Session
 
 
 class Auth(object):
@@ -10,7 +9,9 @@ class Auth(object):
     BASE_API_URL = "https://api.unsplash.com"
     BASE_AUTH_URL = "https://unsplash.com"
 
-    def __init__(self, client_id, client_secret, redirect_uri, token=None, code=None, scope=None):
+    def __init__(
+        self, client_id, client_secret, redirect_uri, token=None, code=None, scope=None
+    ):
         """
 
 
@@ -39,20 +40,27 @@ class Auth(object):
             "write_likes",
             "write_followers",
             "read_collections",
-            "write_collections"
+            "write_collections",
         ]
         self.scope = scope or self.scope_list
 
         try:
             if token:
                 self.oauth = OAuth2Session(
-                    client_id=self.client_id, redirect_uri=self.redirect_uri, scope=self.scope, token=token
+                    client_id=self.client_id,
+                    redirect_uri=self.redirect_uri,
+                    scope=self.scope,
+                    token=token,
                 )
                 self.access_token = self.oauth.access_token
                 self.token = token
                 self.is_authenticated = True
             elif code:
-                self.oauth = OAuth2Session(client_id=self.client_id, redirect_uri=self.redirect_uri, scope=self.scope)
+                self.oauth = OAuth2Session(
+                    client_id=self.client_id,
+                    redirect_uri=self.redirect_uri,
+                    scope=self.scope,
+                )
                 self.access_token = self.get_access_token(code)
                 self.is_authenticated = True
         except OAuth2Error as e:
@@ -69,7 +77,7 @@ class Auth(object):
             client_id=self.client_id,
             client_secret=self.client_secret,
             scope=self.scope,
-            code=code
+            code=code,
         )
         return self.token.get("access_token")
 
@@ -84,5 +92,7 @@ class Auth(object):
         """
         Refreshing the current expired access token
         """
-        self.token = self.oauth.refresh_token(self.access_token_url, refresh_token=self.get_refresh_token())
+        self.token = self.oauth.refresh_token(
+            self.access_token_url, refresh_token=self.get_refresh_token()
+        )
         self.access_token = self.token.get("access_token")

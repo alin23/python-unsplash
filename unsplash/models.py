@@ -1,5 +1,3 @@
-
-
 class ResultSet(list):
     """A list like object that holds results from a Unsplash API query."""
 
@@ -26,8 +24,8 @@ class Model(object):
 
     def __repr__(self):
         items = filter(lambda x: x[0] in self._repr_values, vars(self).items())
-        state = ['%s=%s' % (k, repr(v)) for (k, v) in items]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(state))
+        state = ["%s=%s" % (k, repr(v)) for (k, v) in items]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(state))
 
 
 class Photo(Model):
@@ -133,7 +131,7 @@ class Stat(Model):
 
     def __init__(self, **kwargs):
         super(Stat, self).__init__(**kwargs)
-        self._repr_values = ["total_photos",  "photo_downloads"]
+        self._repr_values = ["total_photos", "photo_downloads"]
 
     @classmethod
     def parse(cls, data):
@@ -156,7 +154,7 @@ class Collection(Model):
 
     def __init__(self, **kwargs):
         super(Collection, self).__init__(**kwargs)
-        self._repr_values = ["id",  "title"]
+        self._repr_values = ["id", "title"]
 
     @classmethod
     def parse(cls, data):

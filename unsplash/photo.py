@@ -1,8 +1,8 @@
 # coding=utf-8
 
 from unsplash.client import Client
-from unsplash.models import Photo as PhotoModel
 from unsplash.models import Stat as StatModel
+from unsplash.models import Photo as PhotoModel
 
 
 class Photo(Client):
@@ -23,11 +23,7 @@ class Photo(Client):
     async def _all(self, url, page=1, per_page=10, order_by="latest"):
         if order_by not in self.ordering_values:
             raise Exception()
-        params = {
-            "page": page,
-            "per_page": per_page,
-            "order_by": order_by
-        }
+        params = {"page": page, "per_page": per_page, "order_by": order_by}
         result = await self._get(url, params=params)
         return PhotoModel.parse_list(result)
 
@@ -41,7 +37,9 @@ class Photo(Client):
         (Valid values: latest, oldest, popular; default: latest)
         :return: [Array]: A single page of the Photo list.
         """
-        return await self._all("/photos", page=page, per_page=per_page, order_by=order_by)
+        return await self._all(
+            "/photos", page=page, per_page=per_page, order_by=order_by
+        )
 
     async def curated(self, page=1, per_page=10, order_by="latest"):
         """
@@ -53,7 +51,9 @@ class Photo(Client):
         (Valid values: latest, oldest, popular; default: latest)
         :return: [Array]: A single page of the curated Photo list.
         """
-        return await self._all("/photos/curated", page=page, per_page=per_page, order_by=order_by)
+        return await self._all(
+            "/photos/curated", page=page, per_page=per_page, order_by=order_by
+        )
 
     async def get(self, photo_id, width=None, height=None, rect=None):
         """
@@ -69,11 +69,7 @@ class Photo(Client):
         :return: [Photo]: The Unsplash Photo.
         """
         url = "/photos/%s" % photo_id
-        params = {
-            "w": width,
-            "h": height,
-            "rect": rect
-        }
+        params = {"w": width, "h": height, "rect": rect}
         result = await self._get(url, params=params)
         return PhotoModel.parse(result)
 
@@ -102,7 +98,7 @@ class Photo(Client):
             "category": category,
             "orientation": orientation,
             "page": page,
-            "per_page": per_page
+            "per_page": per_page,
         }
         url = "/photos/search"
         result = await self._get(url, params=params)
@@ -173,7 +169,7 @@ class Photo(Client):
         if without_content:
             return url
         else:
-            return await self._get(url['url'])
+            return await self._get(url["url"])
 
     # ToDo
     async def update(self, photo_id, **kwargs):

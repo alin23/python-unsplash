@@ -1,7 +1,8 @@
 # coding=utf-8
 
 from unsplash.client import Client
-from unsplash.models import Collection as CollectionModel, Photo as PhotoModel
+from unsplash.models import Photo as PhotoModel
+from unsplash.models import Collection as CollectionModel
 
 
 class Collection(Client):
@@ -20,10 +21,7 @@ class Collection(Client):
         super(Collection, self).__init__(**kwargs)
 
     async def _all(self, url, page=1, per_page=10):
-        params = {
-            "page": page,
-            "per_page": per_page
-        }
+        params = {"page": page, "per_page": per_page}
         return await self._get(url, params=params)
 
     async def all(self, page=1, per_page=10):
@@ -134,11 +132,7 @@ class Collection(Client):
         :return: [Collection]: The Unsplash Collection.
         """
         url = "/collections"
-        data = {
-            "title": title,
-            "description": description,
-            "private": private
-        }
+        data = {"title": title, "description": description, "private": private}
         result = await self._post(url, data=data)
         return CollectionModel.parse(result)
 
@@ -154,11 +148,7 @@ class Collection(Client):
         :return: [Collection]: The Unsplash Collection.
         """
         url = "/collections/%s" % collection_id
-        data = {
-            "title": title,
-            "description": description,
-            "private": private
-        }
+        data = {"title": title, "description": description, "private": private}
         result = await self._put(url, data=data)
         return CollectionModel.parse(result)
 
@@ -185,12 +175,11 @@ class Collection(Client):
         :return: [Tuple]: The Unsplash Collection and Photo
         """
         url = "/collections/%s/add" % collection_id
-        data = {
-            "collection_id": collection_id,
-            "photo_id": photo_id
-        }
+        data = {"collection_id": collection_id, "photo_id": photo_id}
         result = await self._post(url, data=data) or {}
-        return CollectionModel.parse(result.get("collection")), PhotoModel.parse(result.get("photo"))
+        return CollectionModel.parse(result.get("collection")), PhotoModel.parse(
+            result.get("photo")
+        )
 
     async def remove_photo(self, collection_id, photo_id):
         """
@@ -202,9 +191,8 @@ class Collection(Client):
         :return: [Tuple]: The Unsplash Collection and Photo
         """
         url = "/collections/%s/remove" % collection_id
-        data = {
-            "collection_id": collection_id,
-            "photo_id": photo_id
-        }
+        data = {"collection_id": collection_id, "photo_id": photo_id}
         result = await self._delete(url, data=data) or {}
-        return CollectionModel.parse(result.get("collection")), PhotoModel.parse(result.get("photo"))
+        return CollectionModel.parse(result.get("collection")), PhotoModel.parse(
+            result.get("photo")
+        )

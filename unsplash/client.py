@@ -1,6 +1,10 @@
 import aiohttp
 
-from unsplash.errors import UnsplashError
+from unsplash.errors import (
+    UnsplashError,
+    UnsplashRateLimitError,
+    UnsplashConnectionError,
+)
 
 
 class Client(object):
@@ -12,10 +16,10 @@ class Client(object):
 
     def __init__(self, api, **kwargs):
         self.api = api
-        self.rate_limit_error = 'Rate Limit Exceeded'
+        self.rate_limit_error = "Rate Limit Exceeded"
 
     async def _request(self, url, method, params=None, data=None, **kwargs):
-        if not url.startswith('http'):
+        if not url.startswith("http"):
             url = "%s%s" % (self.api.base_url, url)
         headers = self.get_auth_header()
         headers.update(self.get_version_header())
@@ -23,23 +27,29 @@ class Client(object):
 
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.request(method, url, params=params, data=data, headers=headers, **kwargs) as response:
+                async with session.request(
+                    method, url, params=params, data=data, headers=headers, **kwargs
+                ) as response:
                     if not self._is_2xx(response.status):
                         text = await response.text()
                         if text == self.rate_limit_error:
-                            raise UnsplashError(self.rate_limit_error)
+                            raise UnsplashRateLimitError(self.rate_limit_error)
                         else:
                             json = await response.json()
                             errors = json.get("errors")
-                            raise UnsplashError(errors[0] if errors else None)
-                    if response.headers.get('Content-Type') == 'application/json':
+                            raise UnsplashError(
+                                " ".join(str(e) for e in errors)
+                                if errors
+                                else "Unknown error"
+                            )
+                    if response.headers.get("Content-Type") == "application/json":
                         result = await response.json()
                     else:
                         result = await response.read()
         except ValueError as e:
             result = None
         except Exception as e:
-            raise UnsplashError("Connection error: %s" % e)
+            raise UnsplashConnectionError(*e.args)
 
         return result
 

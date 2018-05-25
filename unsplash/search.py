@@ -1,5 +1,7 @@
 from unsplash.client import Client
-from unsplash.models import Photo as PhotoModel, Collection as CollectionModel, User as UserModel
+from unsplash.models import User as UserModel
+from unsplash.models import Photo as PhotoModel
+from unsplash.models import Collection as CollectionModel
 
 
 class Search(Client):
@@ -9,11 +11,7 @@ class Search(Client):
         super(Search, self).__init__(**kwargs)
 
     async def _search(self, url, query, page=1, per_page=10):
-        params = {
-            "query": query,
-            "page": page,
-            "per_page": per_page
-        }
+        params = {"query": query, "page": page, "per_page": per_page}
         return await self._get(url, params=params)
 
     async def photos(self, query, page=1, per_page=10):
