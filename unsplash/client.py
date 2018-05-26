@@ -48,6 +48,8 @@ class Client(object):
                         result = await response.read()
         except ValueError as e:
             result = None
+        except (UnsplashRateLimitError, UnsplashError) as e:
+            raise e
         except Exception as e:
             raise UnsplashConnectionError(*e.args)
 
